@@ -15,9 +15,15 @@ import AuthenticationsService from "./services/postgres/AuthenticationsService.j
 import AuthenticationsValidator from "./validator/authentications/index.js";
 import TokenManager from "./tokenize/TokenManager.js";
 
+// books
+import books from "./api/books/index.js";
+import BooksService from "./services/postgres/BooksService.js";
+import BooksValidator from "./validator/books/index.js";
+
 const init = async () => {
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
+  const booksService = new BooksService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -69,6 +75,13 @@ const init = async () => {
         usersService: usersService,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator,
+      },
+    },
+    {
+      plugin: books,
+      options: {
+        service: booksService,
+        validator: BooksValidator,
       },
     },
   ]);

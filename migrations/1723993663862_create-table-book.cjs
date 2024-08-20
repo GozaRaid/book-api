@@ -50,6 +50,10 @@ exports.up = (pgm) => {
       type: "TEXT",
       notNull: true,
     },
+    ratingtotal: {
+      type: "NUMERIC",
+      default: 0,
+    },
     created_at: {
       type: "TEXT",
       notNull: true,

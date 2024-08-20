@@ -3,6 +3,7 @@ const { Pool } = pkg;
 import { nanoid } from "nanoid";
 import InvariantError from "../../exceptions/InvariantError.js";
 import AuthenticationError from "../../exceptions/AuthenticationError.js";
+import NotFoundError from "../../exceptions/NotFoundError.js";
 import bcrypt from "bcrypt";
 
 class UsersService {
@@ -66,7 +67,7 @@ class UsersService {
     };
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new InvariantError("User tidak ditemukan");
+      throw new NotFoundError("User tidak ditemukan");
     }
 
     return result.rows[0];
