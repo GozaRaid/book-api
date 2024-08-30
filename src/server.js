@@ -3,6 +3,12 @@ import Hapi from "@hapi/hapi";
 import Jwt from "@hapi/jwt";
 import Inert from "@hapi/inert";
 import ClientError from "./exceptions/ClientError.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // users
 import users from "./api/users/index.js";
@@ -20,10 +26,28 @@ import books from "./api/books/index.js";
 import BooksService from "./services/postgres/BooksService.js";
 import BooksValidator from "./validator/books/index.js";
 
+// reviews
+import reviews from "./api/reviews/index.js";
+import ReviewsService from "./services/postgres/ReviewsService.js";
+import ReviewsValidator from "./validator/reviews/index.js";
+
+// ratings
+import ratings from "./api/ratings/index.js";
+import RatingsService from "./services/postgres/RatingsService.js";
+import RatingsValidator from "./validator/ratings/index.js";
+
+// uploads
+import StorageService from "./services/storage/StorageService.js";
+
 const init = async () => {
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const booksService = new BooksService();
+  const storageService = new StorageService(
+    path.resolve(__dirname, "api/books/file/images")
+  );
+  const reviewsService = new ReviewsService();
+  const ratingsService = new RatingsService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -56,6 +80,9 @@ const init = async () => {
       isValid: true,
       credentials: {
         id: artifacts.decoded.payload.id,
+        email: artifacts.decoded.payload.email,
+        displayname: artifacts.decoded.payload.displayname,
+        role: artifacts.decoded.payload.role,
       },
     }),
   });
@@ -80,8 +107,24 @@ const init = async () => {
     {
       plugin: books,
       options: {
-        service: booksService,
+        booksService: booksService,
+        storageService: storageService,
         validator: BooksValidator,
+      },
+    },
+    {
+      plugin: reviews,
+      options: {
+        service: reviewsService,
+        validator: ReviewsValidator,
+      },
+    },
+    {
+      plugin: ratings,
+      options: {
+        RatingsService: ratingsService,
+        BooksService: booksService,
+        validator: RatingsValidator,
       },
     },
   ]);

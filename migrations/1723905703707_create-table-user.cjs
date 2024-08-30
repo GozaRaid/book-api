@@ -38,6 +38,11 @@ exports.up = (pgm) => {
       type: "TEXT",
       notNull: false,
     },
+    role: {
+      type: "TEXT",
+      notNull: true,
+      default: "user",
+    },
     created_at: {
       type: "TEXT",
       notNull: true,

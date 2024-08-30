@@ -14,7 +14,7 @@ exports.up = (pgm) => {
       type: "VARCHAR(50)",
       primaryKey: true,
     },
-    tittle: {
+    title: {
       type: "TEXT",
       notNull: true,
     },
@@ -44,13 +44,17 @@ exports.up = (pgm) => {
     },
     bookURL: {
       type: "TEXT",
-      notNull: true,
+      // notNull: true,
     },
     book_image_url: {
       type: "TEXT",
-      notNull: true,
+      // notNull: true,
     },
     ratingtotal: {
+      type: "NUMERIC",
+      default: 0,
+    },
+    ratingcount: {
       type: "NUMERIC",
       default: 0,
     },

@@ -9,7 +9,7 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  pgm.createTable("ratings", {
+  pgm.createTable("reviews", {
     id: {
       type: "VARCHAR(50)",
       primaryKey: true,
@@ -22,28 +22,26 @@ exports.up = (pgm) => {
       type: "VARCHAR(50)",
       notNull: true,
     },
-    rating: {
-      type: "INTEGER",
+    review: {
+      type: "TEXT",
       notNull: true,
     },
   });
-
   pgm.addConstraint(
-    "ratings",
-    "fk_ratings.user_id_users.id",
+    "reviews",
+    "fk_reviews.user_id_users.id",
     "FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE"
   );
-
   pgm.addConstraint(
-    "ratings",
-    "fk_ratings.book_id_books.id",
+    "reviews",
+    "fk_reviews.book_id_books.id",
     "FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE"
   );
 
   pgm.addConstraint(
-    "ratings",
-    "chk_ratings_valid_values",
-    "CHECK (rating IN (1, 2, 3, 4, 5))"
+    "reviews",
+    "unique_user_review_book",
+    "UNIQUE(user_id, book_id)"
   );
 };
 
@@ -53,5 +51,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-  pgm.dropTable("ratings");
+  pgm.dropTable("reviews");
 };
