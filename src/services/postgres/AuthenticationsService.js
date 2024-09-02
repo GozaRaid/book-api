@@ -18,7 +18,7 @@ class AuthenticationsService {
   async verifyRefreshToken(token) {
     const query = {
       text: "SELECT token FROM authentications WHERE token = $1",
-      values: [token],
+      values: [token.refreshToken],
     };
     const result = await this._pool.query(query);
     if (!result.rows.length) {
@@ -29,7 +29,7 @@ class AuthenticationsService {
   async deleteRefreshToken(token) {
     const query = {
       text: "DELETE FROM authentications WHERE token = $1",
-      values: [token],
+      values: [token.refreshToken],
     };
     await this._pool.query(query);
   }

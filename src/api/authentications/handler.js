@@ -1,4 +1,5 @@
 import autoBind from "auto-bind";
+import AuthenticationError from "../../exceptions/AuthenticationError.js";
 
 class AuthenticationsHandler {
   constructor(authenticationsService, usersService, tokenManager, validator) {
@@ -26,15 +27,17 @@ class AuthenticationsHandler {
       id,
       email,
       displayname,
+      role,
     });
     await this._authenticationsService.addRefreshToken(refreshToken);
+
+    h.state("refreshToken", { refreshToken: refreshToken });
 
     const response = h.response({
       status: "success",
       message: "Authentication berhasil ditambahkan",
       data: {
         accessToken,
-        refreshToken,
       },
     });
     response.code(201);
@@ -42,9 +45,11 @@ class AuthenticationsHandler {
   }
 
   async putAuthenticationHandler(request, h) {
-    this._validator.validatePutAuthenticationPayload(request.payload);
-
-    const { refreshToken } = request.payload;
+    const refreshToken = request.state.refreshToken;
+    if (!refreshToken) {
+      throw new AuthenticationError("Refresh token tidak valid");
+    }
+    this._validator.validatePutAuthenticationPayload(refreshToken);
     await this._authenticationsService.verifyRefreshToken(refreshToken);
     const { id, email, displayname, role } =
       this._tokenManager.verifyRefreshToken(refreshToken);
@@ -66,9 +71,11 @@ class AuthenticationsHandler {
   }
 
   async deleteAuthenticationHandler(request, h) {
-    this._validator.validateDeleteAuthenticationPayload(request.payload);
-
-    const { refreshToken } = request.payload;
+    const refreshToken = request.state.refreshToken;
+    if (!refreshToken) {
+      throw new AuthenticationError("Refresh token tidak valid");
+    }
+    this._validator.validateDeleteAuthenticationPayload(refreshToken);
     await this._authenticationsService.verifyRefreshToken(refreshToken);
     await this._authenticationsService.deleteRefreshToken(refreshToken);
 
@@ -76,6 +83,7 @@ class AuthenticationsHandler {
       status: "success",
       message: "Refresh token berhasil dihapus",
     });
+    response.unstate("refreshToken");
     return response;
   }
 }

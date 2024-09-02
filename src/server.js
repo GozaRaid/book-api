@@ -55,6 +55,7 @@ const init = async () => {
     routes: {
       cors: {
         origin: ["*"],
+        credentials: true,
       },
     },
   });
@@ -67,6 +68,16 @@ const init = async () => {
       plugin: Inert,
     },
   ]);
+
+  server.state("refreshToken", {
+    ttl: 24 * 60 * 60 * 1000,
+    isSecure: false,
+    path: "/",
+    isHttpOnly: true,
+    encoding: "base64json",
+    clearInvalid: false,
+    strictHeader: true,
+  });
 
   server.auth.strategy("bookrevu_api_jwt", "jwt", {
     keys: process.env.ACCESS_TOKEN_KEY,
